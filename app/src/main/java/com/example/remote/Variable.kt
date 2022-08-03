@@ -36,3 +36,5 @@ var MAC_TV: String by mutableStateOf("")
 var PROJECT_NAME: String by mutableStateOf("")
 
 var STAT_SCREEN: Boolean by mutableStateOf(false)
+var ID_TV: String by mutableStateOf("")
+var IS_DIALOG_OPEN =  mutableStateOf(false)

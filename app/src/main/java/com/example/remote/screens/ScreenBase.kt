@@ -4,6 +4,7 @@ import android.app.Notification
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,32 +16,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.remote.POWER
+import com.example.remote.*
 import com.example.remote.R
-import com.example.remote.SOURCE
-import com.example.remote.STAT_SCREEN
 import com.example.remote.api.RemoteViewModel
 import com.example.remote.component.ButtonView
-import com.example.remote.mqtt.MQTTClientViewModel
-import com.example.remote.mqtt.MQTTConnectionParams
+import com.example.remote.component.ViewDialogWifi
+import com.example.remote.proto.ProtoViewModel
+import com.example.remote.tcp.TcpViewModel
 import com.example.remote.ui.theme.RemoteTheme
-import org.apache.http.params.HttpConnectionParams
+import kotlinx.coroutines.*
 
-//@RequiresApi(Build.VERSION_CODES.N)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScreenBase(
     remoteViewModel: RemoteViewModel,
-//    mqttClientViewModel: MQTTClientViewModel,
-//    connectionParams: MQTTConnectionParams,
-//    notification: Notification
-//    applicationContext: Context
+    protoViewModel: ProtoViewModel
 ) {
     val context = LocalContext.current
 
     var selectedScreen by remember { mutableStateOf(false) }
-
-//    remoteViewModel.getInformation()
 
     ConstraintLayout(modifier = Modifier
         .padding(start = 32.dp, end = 32.dp, top = 32.dp, bottom = 32.dp)
@@ -51,8 +45,7 @@ fun ScreenBase(
             buttonPower,
             buttonSource,
             informationSurface,
-            buttonGetData,
-            buttonConnect
+            ButtonWIfi
         ) = createRefs()
         val modifier = Modifier
 
@@ -89,7 +82,6 @@ fun ScreenBase(
             selectedScreen = !selectedScreen
             STAT_SCREEN = selectedScreen
             Log.i("check", "Screen $selectedScreen")
-//            remoteViewModel.insertCommand(command = SOURCE)
         }
 
         ButtonView(
@@ -117,48 +109,35 @@ fun ScreenBase(
         }){
             if (!selectedScreen) ScreenInformation() else ScreenRemote(remoteViewModel = remoteViewModel)
         }
-//        if(!selectedScreen){
-//            ButtonView(
-//                descriptionContent = "Connect",
-//                buttonIcon = false,
-//                title = "Connect",
-//                enable = true,
-//                icon = R.drawable.ic_baseline_power_settings_new_48,
-//                roundedShape = 100,
-//                powerButton = false,
-//                width = 320,
-//                modifier = modifier.constrainAs(buttonConnect){
-//                    bottom.linkTo(buttonGetData.top, 16.dp)
-//                    end.linkTo(parent.end)
-//                    start.linkTo(parent.start)
-//                }
-//            ) {
-//
-//            }
-//
-//            ButtonView(
-//                descriptionContent = "Get Data",
-//                buttonIcon = false,
-//                title = "Get Data",
-//                enable = true,
-//                icon = R.drawable.ic_baseline_power_settings_new_48,
-//                roundedShape = 100,
-//                powerButton = false,
-//                width = 320,
-//                modifier = modifier.constrainAs(buttonGetData){
-//                    bottom.linkTo(parent.bottom)
-//                    end.linkTo(parent.end)
-//                    start.linkTo(parent.start)
-//                }
-//            ) {
-//
-//            }
-//        }
-//        else{
-//            ScreenRemote(remoteViewModel = remoteViewModel)
-//        }
+
+        if (!selectedScreen) {
+            ButtonView(
+                descriptionContent = "Button Wifi",
+                buttonIcon = false,
+                title = "Setting Wifi TV",
+                enable = true,
+                width = 320,
+                tintColor = MaterialTheme.colorScheme.onPrimary,
+                roundedShape = 100,
+                modifier = modifier.constrainAs(ButtonWIfi){
+                    bottom.linkTo(parent.bottom, 16.dp)
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                }
+            ) {
+//            if (!typeButton) remoteViewModel.insertCommand(command = VOL_MINUS) else remoteViewModel.insertCommand(command = CH_MINUS)
+//                Toast.makeText(context, "Setting Wifi", Toast.LENGTH_SHORT).show()
+                IS_DIALOG_OPEN.value = true
+//                tcpViewModel.uiScope.cancel()
 
 
+//                CoroutineScope(Dispatchers.Default).launch { tcpViewModel.Connect() }
+//                runBlocking { tcpViewModel.Connect() }
+            }
+        }
+    }
+    if (IS_DIALOG_OPEN.value){
+        ViewDialogWifi(protoViewModel = protoViewModel)
     }
 }
 

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "com.example.remote";
+option java_multiple_files = true;
+
+message DataPreferences {
+  // filter for showing / hiding completed tasks
+  string ID_TV = 1;
+//  string storeCity = 2;
+//  string storePassword = 3;
+  //  string clientKey = 4;
+  //  string clientID = 5;
+  //  string merchantID = 6;
+}

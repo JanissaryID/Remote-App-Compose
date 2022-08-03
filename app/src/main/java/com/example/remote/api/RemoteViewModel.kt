@@ -9,9 +9,6 @@ import com.example.remote.api.Remote.M2mCin
 import com.example.remote.api.Remote.RemoteApp
 import com.example.remote.api.Remote.RemoteModel
 import kotlinx.coroutines.*
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.MqttException
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,7 +20,7 @@ class RemoteViewModel: ViewModel() {
     fun insertCommand(command: Int){
 
         val bodyUpdate = RemoteModel(
-            m2mCin = M2mCin(con = "{\"Key\":$command}")
+            m2mCin = M2mCin(con = "{\"ID\":\"$ID_TV\",\"Key\":$command}")
         )
 
         RemoteApp.CreateInstance().insertCommand(bodyUpdate).enqueue(object :
@@ -35,12 +32,6 @@ class RemoteViewModel: ViewModel() {
 
             override fun onFailure(call: Call<RemoteModel>, t: Throwable) {
                 Log.d("error", t.message.toString())
-                if (t.message == t.message){
-
-//                    BtnOnMachine.isEnabled =true
-
-//                    Toast.makeText(requireContext(), "Tidak ada koneksi Internet" , Toast.LENGTH_SHORT).show()
-                }
             }
         })
     }
@@ -65,12 +56,43 @@ class RemoteViewModel: ViewModel() {
                             val splitStringChannel = splitComa[4].split(':')
                             val splitStringProject = splitComa[5].split(':')
                             val splitStringMac = splitComa[6].split(':')
+                            val splitStringID = splitComa[7].split(':')
                             val parts2 = splitString[1].subSequence(1, splitString[1]?.length-1).toString()
                             val data = parts2.split('#')
+                            val MyTVID = "${splitStringID[1]?.subSequence(1, splitStringID[1]?.length-1)}"
                             if (data[0].length > 0){
-//                                Log.d("debug", "Data : ${splitStringMac}")
+                                Log.d("debug", "ID : ${MyTVID}")
 //                                val turnoffData = data[0].length
-                                if(data[0].length != 6){
+                                if(ID_TV == MyTVID){
+                                    if(data[0].length != 6){
+                                        FREQUENCY = "Tv Turn off"
+                                        POST = "Tv Turn off"
+                                        picMode("777")
+                                        soundMode("777")
+                                        TIME = "Tv Turn off"
+                                        SW_VERSION = "Tv Turn off"
+                                        SW_VERSION_LAST = ""
+                                        CHANNEL_TV = "Tv Turn off"
+                                        PROJECT_NAME = "Tv Turn off"
+                                        MAC_TV = "Tv Turn off"
+                                    }
+                                    else{
+                                        FREQUENCY = data[0].subSequence(0, data[0]?.length-3).toString()+ "." + data[0].subSequence(3, data[0]?.length-1).toString()
+                                        POST = data[1].toString()
+                                        picMode(data[2])
+                                        soundMode(data[3])
+                                        TIME = "${data[4]} Hours"
+                                        SW_VERSION = "${splitStringComaSw1[1]?.subSequence(1, splitStringComaSw1[1]?.length-1)}" +
+                                                "-" +
+                                                "${splitStringComaSw2[1]?.subSequence(1, splitStringComaSw2[1]?.length-1)}" +
+                                                " -- "
+                                        SW_VERSION_LAST = "${splitStringComaSw3[1]?.subSequence(1, splitStringComaSw3[1]?.length-1)}"
+                                        CHANNEL_TV = "${splitStringChannel[1]?.subSequence(1, splitStringChannel[1]?.length-1)}"
+                                        PROJECT_NAME = "${splitStringProject[1]?.subSequence(1, splitStringProject[1]?.length-1)}"
+                                        MAC_TV = "${splitStringMac[1]?.subSequence(1, splitStringMac[1]?.length)}:${splitStringMac[2]}:${splitStringMac[3]}:${splitStringMac[4]}:${splitStringMac[5]}:${splitStringMac[6]?.subSequence(0, splitStringMac[1]?.length-1)}"
+                                    }
+                                }
+                                else{
                                     FREQUENCY = "Tv Turn off"
                                     POST = "Tv Turn off"
                                     picMode("777")
@@ -82,30 +104,16 @@ class RemoteViewModel: ViewModel() {
                                     PROJECT_NAME = "Tv Turn off"
                                     MAC_TV = "Tv Turn off"
                                 }
-                                else{
-                                    FREQUENCY = data[0].subSequence(0, data[0]?.length-3).toString()+ "." + data[0].subSequence(3, data[0]?.length-1).toString()
-                                    POST = data[1].toString()
-                                    picMode(data[2])
-                                    soundMode(data[3])
-                                    TIME = "${data[4]} Hours"
-                                    SW_VERSION = "${splitStringComaSw1[1]?.subSequence(1, splitStringComaSw1[1]?.length-1)}" +
-                                            "-" +
-                                            "${splitStringComaSw2[1]?.subSequence(1, splitStringComaSw2[1]?.length-1)}" +
-                                            " -- "
-                                    SW_VERSION_LAST = "${splitStringComaSw3[1]?.subSequence(1, splitStringComaSw3[1]?.length-1)}"
-                                    CHANNEL_TV = "${splitStringChannel[1]?.subSequence(1, splitStringChannel[1]?.length-1)}"
-                                    PROJECT_NAME = "${splitStringProject[1]?.subSequence(1, splitStringProject[1]?.length-1)}"
-                                    MAC_TV = "${splitStringMac[1]?.subSequence(1, splitStringMac[1]?.length)}:${splitStringMac[2]}:${splitStringMac[3]}:${splitStringMac[4]}:${splitStringMac[5]}:${splitStringMac[6]?.subSequence(0, splitStringMac[1]?.length-1)}"
-                                }
+
                             }
                         }
                     }
                 }
 
                 override fun onFailure(call: Call<InformationModel>, t: Throwable) {
-                    Log.i("info", "Fail get Data ${t.message.toString()}")
+//                    Log.i("info", "Fail get Data ${t.message.toString()}")
                     if (t.message == t.message){
-                        Log.i("info", "Failed")
+//                        Log.i("info", "Failed")
                     }
                 }
             })
@@ -143,10 +151,10 @@ class RemoteViewModel: ViewModel() {
     }
 
     fun coroutineBack(){
-        var viewModelJob = Job()
+//        var viewModelJob = Job()
         try
         {
-            uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+            uiScope = CoroutineScope(SupervisorJob())
 
             uiScope.launch {
                 withContext(Dispatchers.IO) {
