@@ -21,7 +21,7 @@ import com.example.remotev2.screen.ScreenBase
 import com.example.remotev2.ui.theme.RemoteV2Theme
 
 class MainActivity : ComponentActivity() {
-
+//
     val mqttViewModel by viewModels<MqttViewModel>()
 
     private lateinit var protoViewModel: ProtoViewModel
