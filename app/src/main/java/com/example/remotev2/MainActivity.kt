@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
             ID_TV = it.idtv
             Log.i("proto", "Id TV = $ID_TV")
         })
-
+//
         setContent {
             RemoteV2Theme {
                 mqttViewModel.connect(applicationContext = LocalContext.current)
