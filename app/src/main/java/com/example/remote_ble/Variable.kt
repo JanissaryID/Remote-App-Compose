@@ -24,6 +24,8 @@ var POST: String by mutableStateOf("")
 var PICTURE_MODE: String by mutableStateOf("")
 var SOUND_MODE: String by mutableStateOf("")
 var SW_VERSION: String by mutableStateOf("")
+var SW_VERSION1: String by mutableStateOf("")
+var SW_VERSION2: String by mutableStateOf("")
 var SW_VERSION_LAST: String by mutableStateOf("")
 var TIME: String by mutableStateOf("")
 var CHANNEL_TV: String by mutableStateOf("")
@@ -33,6 +35,7 @@ var PROJECT_NAME: String by mutableStateOf("")
 var ID_TV: String by mutableStateOf("")
 
 var IS_DIALOG_OPEN =  mutableStateOf(false)
+var STAT_COMMUNICATION: Boolean by mutableStateOf(true)
 
 const val POWER = 0x76
 const val SOURCE = 0x75

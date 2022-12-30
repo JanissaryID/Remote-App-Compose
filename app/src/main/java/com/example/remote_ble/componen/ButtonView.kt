@@ -41,6 +41,18 @@ fun ButtonView(
         enabled = enable,
         border = if (powerButton) BorderStroke(6.dp, MaterialTheme.colorScheme.errorContainer) else BorderStroke(6.dp, MaterialTheme.colorScheme.primary)
     ) {
-        if(!buttonIcon) Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = MaterialTheme.typography.labelMedium.fontSize) else Icon(tint = tintColor, painter = painterResource(icon), contentDescription = descriptionContent)
+        if(!buttonIcon)
+            Text(
+                text = title,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                color = if (!clicked) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        else
+            Icon(
+            tint = tintColor,
+            painter = painterResource(icon),
+            contentDescription = descriptionContent
+        )
     }
 }

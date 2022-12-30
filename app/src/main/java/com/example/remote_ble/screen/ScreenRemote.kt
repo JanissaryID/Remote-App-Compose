@@ -1,5 +1,6 @@
 package com.example.remote_ble.screen
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -11,9 +12,20 @@ import com.example.remote_ble.componen.ButtonGroup
 import com.example.remote_ble.componen.ButtonView
 import com.example.remote_ble.mqtt.MqttViewModel
 import com.example.remote_ble.R.drawable
+import com.example.remote_ble.ble.BleViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
+import com.example.remote_ble.STAT_COMMUNICATION
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ScreeenRemote(mqttViewModel: MqttViewModel) {
+fun ScreeenRemote(
+    mqttViewModel: MqttViewModel,
+    bleViewModel: BleViewModel,
+    statCommunication: Boolean = true,
+    context: Context,
+    multiplePermissionsState: MultiplePermissionsState
+) {
 
     val modifier = Modifier
 
@@ -45,7 +57,10 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
             iconTop = drawable.ic_baseline_arrow_drop_up_48,
             iconBottom = drawable.ic_baseline_arrow_drop_down_48,
             typeButton = true,
-            mqttViewModel = mqttViewModel
+            mqttViewModel = mqttViewModel,
+            multiplePermissionsState = multiplePermissionsState,
+            context = context,
+            bleViewModel = bleViewModel
         )
 
         ButtonGroup(modifier = modifier
@@ -58,7 +73,10 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
             iconTop = drawable.ic_baseline_add_48,
             iconBottom = drawable.ic_baseline_remove_48,
             typeButton = false,
-            mqttViewModel = mqttViewModel
+            mqttViewModel = mqttViewModel,
+            multiplePermissionsState = multiplePermissionsState,
+            context = context,
+            bleViewModel = bleViewModel
         )
 
         ButtonView(
@@ -74,8 +92,17 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 end.linkTo(channel.start)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = MUTE.toString())
-//            Toast.makeText(context, "Source", Toast.LENGTH_SHORT).show()
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = MUTE.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = MUTE.toString())
+            }
+
         }
 
         ButtonView(
@@ -91,7 +118,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 end.linkTo(channel.start)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = ZOOM.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = ZOOM.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = ZOOM.toString())
+            }
 //            Toast.makeText(context, "Source", Toast.LENGTH_SHORT).show()
         }
 
@@ -107,7 +143,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 top.linkTo(volume.bottom, 18.dp)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = FAV.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = FAV.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = FAV.toString())
+            }
 //            Toast.makeText(context, "Source", Toast.LENGTH_SHORT).show()
         }
 
@@ -125,7 +170,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 end.linkTo(channel.start)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = UP.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = UP.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = UP.toString())
+            }
 //            Toast.makeText(context, "Power", Toast.LENGTH_SHORT).show()
         }
 
@@ -144,7 +198,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 end.linkTo(parent.end)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = SELECT.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = SELECT.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = SELECT.toString())
+            }
 //            Toast.makeText(context, "Power", Toast.LENGTH_SHORT).show()
         }
 
@@ -162,7 +225,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 end.linkTo(channel.start)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = DOWN.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = DOWN.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = DOWN.toString())
+            }
 //            Toast.makeText(context, "Power", Toast.LENGTH_SHORT).show()
         }
 
@@ -180,7 +252,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 bottom.linkTo(enter.bottom)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = LEFT.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = LEFT.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = LEFT.toString())
+            }
 //            Toast.makeText(context, "Power", Toast.LENGTH_SHORT).show()
         }
 
@@ -198,7 +279,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 bottom.linkTo(enter.bottom)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = RIGHT.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = RIGHT.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = RIGHT.toString())
+            }
 //            Toast.makeText(context, "Power", Toast.LENGTH_SHORT).show()
         }
 
@@ -215,7 +305,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 bottom.linkTo(down.bottom)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = MENU.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = MENU.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = MENU.toString())
+            }
 //            remoteViewModel.insertCommand(command = NO_COMMAND)
 //            Toast.makeText(context, "Source", Toast.LENGTH_SHORT).show()
         }
@@ -233,7 +332,16 @@ fun ScreeenRemote(mqttViewModel: MqttViewModel) {
                 bottom.linkTo(down.bottom)
             }
         ) {
-            mqttViewModel.publish(topic = TOPIC_PUBLISH, data = EXIT.toString())
+            if(STAT_COMMUNICATION){
+                bleViewModel.writeRXCharacteristic(
+                    multiplePermissionState = multiplePermissionsState,
+                    context = context,
+                    value = EXIT.toString().toByteArray()
+                )
+            }
+            else{
+                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = EXIT.toString())
+            }
 //            remoteViewModel.insertCommand(command = NO_COMMAND)
 //            Toast.makeText(context, "Source", Toast.LENGTH_SHORT).show()
         }

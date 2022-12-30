@@ -1,5 +1,6 @@
 package com.example.remote_ble.componen
 
+import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -11,14 +12,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.remote_ble.*
+import com.example.remote_ble.ble.BleViewModel
 import com.example.remote_ble.mqtt.MqttViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ButtonGroup(
     mqttViewModel: MqttViewModel,
     iconTop: Int,
     iconBottom: Int,
     modifier: Modifier,
+    bleViewModel: BleViewModel,
+    multiplePermissionsState: MultiplePermissionsState,
+    context: Context,
     typeButton: Boolean, // if false is volume and if true is ch
     title: String) {
     Surface(
@@ -46,9 +54,27 @@ fun ButtonGroup(
                 }
             ) {
                 if (!typeButton)
-                    mqttViewModel.publish(topic = TOPIC_PUBLISH, data = VOL_PLUS.toString())
+                    if(STAT_COMMUNICATION){
+                        bleViewModel.writeRXCharacteristic(
+                            multiplePermissionState = multiplePermissionsState,
+                            context = context,
+                            value = VOL_PLUS.toString().toByteArray()
+                        )
+                    }
+                    else{
+                        mqttViewModel.publish(topic = TOPIC_PUBLISH, data = VOL_PLUS.toString())
+                    }
                 else
-                    mqttViewModel.publish(topic = TOPIC_PUBLISH, data = CH_PLUS.toString())
+                    if(STAT_COMMUNICATION){
+                        bleViewModel.writeRXCharacteristic(
+                            multiplePermissionState = multiplePermissionsState,
+                            context = context,
+                            value = CH_PLUS.toString().toByteArray()
+                        )
+                    }
+                    else{
+                        mqttViewModel.publish(topic = TOPIC_PUBLISH, data = CH_PLUS.toString())
+                    }
             }
 
             Text(
@@ -76,9 +102,27 @@ fun ButtonGroup(
                 }
             ) {
                 if (!typeButton)
-                    mqttViewModel.publish(topic = TOPIC_PUBLISH, data = VOL_MINUS.toString())
+                    if(STAT_COMMUNICATION){
+                        bleViewModel.writeRXCharacteristic(
+                            multiplePermissionState = multiplePermissionsState,
+                            context = context,
+                            value = VOL_MINUS.toString().toByteArray()
+                        )
+                    }
+                    else{
+                        mqttViewModel.publish(topic = TOPIC_PUBLISH, data = VOL_MINUS.toString())
+                    }
                 else
-                    mqttViewModel.publish(topic = TOPIC_PUBLISH, data = CH_MINUS.toString())
+                    if(STAT_COMMUNICATION){
+                        bleViewModel.writeRXCharacteristic(
+                            multiplePermissionState = multiplePermissionsState,
+                            context = context,
+                            value = CH_MINUS.toString().toByteArray()
+                        )
+                    }
+                    else{
+                        mqttViewModel.publish(topic = TOPIC_PUBLISH, data = CH_MINUS.toString())
+                    }
 //                    Toast.makeText(context, "Power", Toast.LENGTH_SHORT).show()
             }
         }

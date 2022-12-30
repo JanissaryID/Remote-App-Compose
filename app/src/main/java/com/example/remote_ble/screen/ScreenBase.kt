@@ -1,5 +1,6 @@
 package com.example.remote_ble.screen
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -13,12 +14,20 @@ import com.example.remote_ble.componen.ButtonView
 import com.example.remote_ble.mqtt.MqttViewModel
 import com.example.remote_ble.componen.DialogId
 import com.example.remote_ble.R
+import com.example.remote_ble.ble.BleViewModel
 import com.example.remote_ble.proto.ProtoViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
+import com.example.remote_ble.STAT_COMMUNICATION
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ScreenBase(
     mqttViewModel: MqttViewModel,
-    protoViewModel: ProtoViewModel
+    protoViewModel: ProtoViewModel,
+    bleViewModel: BleViewModel,
+    contextActivity: Context,
+    multiplePermissionsState: MultiplePermissionsState
 ) {
     val context = LocalContext.current
 
@@ -42,10 +51,19 @@ fun ScreenBase(
                 buttonIcon = false,
                 title = "Source",
                 enable = true,
-                width = 108,
+                width = 92,
                 roundedShape = 100
             ) {
-                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = SOURCE.toString())
+                if(STAT_COMMUNICATION){
+                    bleViewModel.writeRXCharacteristic(
+                        multiplePermissionState = multiplePermissionsState,
+                        context = context,
+                        value = SOURCE.toString().toByteArray()
+                    )
+                }
+                else{
+                    mqttViewModel.publish(topic = TOPIC_PUBLISH, data = SOURCE.toString())
+                }
             }
 
             ButtonView(
@@ -53,7 +71,7 @@ fun ScreenBase(
                 buttonIcon = false,
                 title = if (selectedScreen) "Info" else "Remote",
                 enable = true,
-                width = 108,
+                width = 92,
                 roundedShape = 100,
                 clicked = selectedScreen,
             ) {
@@ -72,14 +90,68 @@ fun ScreenBase(
                 color = MaterialTheme.colorScheme.errorContainer,
                 powerButton = true
             ) {
-                mqttViewModel.publish(topic = TOPIC_PUBLISH, data = POWER.toString())
+                if(STAT_COMMUNICATION){
+                    bleViewModel.writeRXCharacteristic(
+                        multiplePermissionState = multiplePermissionsState,
+                        context = context,
+                        value = POWER.toString().toByteArray()
+                    )
+                }
+                else{
+                    mqttViewModel.publish(topic = TOPIC_PUBLISH, data = POWER.toString())
+                }
             }
         }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+            ButtonView(
+                descriptionContent = "Connect",
+                buttonIcon = false,
+                title = "Connect",
+                enable = if(bleViewModel.isConnect) false else true,
+                width = 92,
+                roundedShape = 100
+            ) {
+                multiplePermissionsState.launchMultiplePermissionRequest()
+                bleViewModel.requestBluetoothPermission()
+
+                bleViewModel.isConnect = true
+                if(!bleViewModel.isScanning){
+                    bleViewModel.connectToGattServer(context = context, multiplePermissionState = multiplePermissionsState, macAddress = "A4:CF:12:75:9E:6A")
+                }
+            }
+
+            ButtonView(
+                descriptionContent = "Disconnect",
+                buttonIcon = false,
+                title = "Disconnect",
+                enable = if(bleViewModel.isConnect) true else false,
+                width = 92,
+                roundedShape = 100
+            ) {
+                bleViewModel.isConnect = false
+                bleViewModel.connectToGattServer(context = context, multiplePermissionState = multiplePermissionsState, macAddress = "A4:CF:12:75:9E:6A")
+            }
+        }
+
+
 
 //        Spacer(modifier = Modifier.height(32.dp))
 
         Box(modifier = Modifier.wrapContentHeight()){
-            if (!selectedScreen) ScreenMonitor(mqttViewModel = mqttViewModel) else ScreeenRemote(mqttViewModel = mqttViewModel)
+            if (!selectedScreen)
+                ScreenMonitor(mqttViewModel = mqttViewModel)
+            else ScreeenRemote(
+                mqttViewModel = mqttViewModel,
+                bleViewModel = bleViewModel,
+                context = contextActivity,
+                multiplePermissionsState = multiplePermissionsState
+            )
         }
 
         if (!selectedScreen) {
